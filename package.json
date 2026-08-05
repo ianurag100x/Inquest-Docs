@@ -5,9 +5,10 @@
     "build": "nuxt build"
   },
   "dependencies": {
-    "docus": "latest",
+    "@supabase/supabase-js": "^2.45.0",
     "better-sqlite3": "^12.11.1",
-    "nuxt": "^4.4.8",
-    "@supabase/supabase-js": "^2.45.0"
+    "date-fns": "^4.4.0",
+    "docus": "latest",
+    "nuxt": "^4.4.8"
   }
 }
