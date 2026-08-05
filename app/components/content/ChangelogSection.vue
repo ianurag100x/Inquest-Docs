@@ -1,3 +1,5 @@
+const appConfig = useAppConfig(); console.log(appConfig);
+
 <script setup lang="ts">
 import { changelog } from "~/data/changelog";
 

@@ -1,10 +1,21 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export interface SessionPayload {
-  u: number; // torn user id
-  n: string; // torn player name
-  f: number; // faction id
-  e: number; // expiry, unix seconds
+  v: number;
+
+  u: number; // Torn User ID
+
+  n: string; // Player Name
+
+  f: number; // Faction ID
+
+  fn: string; // Faction Name
+
+  p: string; // Position
+
+  i: number; // Issued At
+
+  e: number; // Expiry
 }
 
 function base64url(input: Buffer | string) {

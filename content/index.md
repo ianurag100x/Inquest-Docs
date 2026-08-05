@@ -16,7 +16,7 @@ Everything you need to become an effective member—from joining the faction and
 #links
   :::u-button
   ---
-  color: neutral
+  color: primary
   size: xl
   to: /announcement/readme-first
   trailing-icon: i-lucide-arrow-right
@@ -29,7 +29,7 @@ Everything you need to become an effective member—from joining the faction and
   color: neutral
   variant: outline
   size: xl
-  to: /in-progress
+  to: https://discord.gg/mkrjyfyW
   ---
   Join Discord
   :::

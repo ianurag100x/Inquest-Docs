@@ -8,6 +8,9 @@ const PUBLIC_PATH_PREFIXES = [
   "/__nuxt_devtools__",
   "/favicon.ico",
   "/robots.txt",
+  "/site.webmanifest",
+  "/icon",
+  "/images/",
 ];
 
 function isPublicPath(path: string): boolean {

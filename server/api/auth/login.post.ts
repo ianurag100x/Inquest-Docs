@@ -16,8 +16,11 @@ interface TornFactionResponse {
 }
 
 interface TornBasicResponse {
-  player_id?: number;
-  name?: string;
+  profile?: {
+    id: number;
+    name: string;
+  };
+
   error?: {
     code: number;
     error: string;
@@ -56,13 +59,14 @@ export default defineEventHandler(async (event) => {
         p_success: opts.success,
         p_reason: opts.reason ?? null,
       });
-    } catch {
-      // Never let logging failures block the auth flow.
+    } catch (err) {
+      console.error("Torn basic endpoint failed:", err);
     }
   };
 
   // 1. Verify the key and pull the caller's faction.
   let factionData: TornFactionResponse;
+
   try {
     factionData = await $fetch<TornFactionResponse>(
       "https://api.torn.com/v2/user/faction",
@@ -102,10 +106,10 @@ export default defineEventHandler(async (event) => {
         query: { key: apiKey },
       },
     );
-    tornUserId = basic.player_id;
-    tornName = basic.name;
-  } catch {
-    // non-fatal
+    tornUserId = basic.profile?.id;
+    tornName = basic.profile?.name;
+  } catch (err) {
+    console.error("Torn basic endpoint failed:", err);
   }
 
   // 3. Enforce the faction gate.
@@ -134,12 +138,25 @@ export default defineEventHandler(async (event) => {
   });
 
   // 4. Issue a signed session cookie. The raw API key is never stored.
-  const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7; // 7 days
+  const now = Math.floor(Date.now() / 1000);
+  const expires = now + 60 * 60 * 24 * 7;
+
   const token = signSession(
     {
+      v: 1,
+
       u: tornUserId ?? 0,
+
       n: tornName ?? "Unknown",
+
       f: factionId,
+
+      fn: factionName ?? "Unknown",
+
+      p: factionData.faction?.position ?? "Member",
+
+      i: now,
+
       e: expires,
     },
     config.authSecret as string,
@@ -147,7 +164,7 @@ export default defineEventHandler(async (event) => {
 
   setCookie(event, "faction_session", token, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
