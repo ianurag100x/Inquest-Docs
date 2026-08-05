@@ -19,11 +19,9 @@ export const changelog: ChangelogVersion[] = [
     released: "04 August 2026",
     type: "major",
 
-    summary: "Initial release of the documentation portal.",
+    summary: "Initial release of the Inquest Docs",
 
     features: [
-      "Interactive Event Calendar",
-      "Responsive documentation layout",
       "Announcements section",
       "War HQ documentation",
       "Inquiry history documentation",
@@ -34,7 +32,7 @@ export const changelog: ChangelogVersion[] = [
 
     fixes: [],
 
-    security: ["Authentication system", "Encrypted user sessions"],
+    security: ["Authentication system"],
 
     breaking: [],
   },

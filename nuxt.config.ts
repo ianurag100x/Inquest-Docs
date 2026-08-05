@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     },
   ],
 
+  css: ["~/assets/css/main.css"],
+
   runtimeConfig: {
     // Server-only values (never sent to the client bundle).
     tornFactionId: process.env.TORN_FACTION_ID || "21665",

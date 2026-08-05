@@ -1,0 +1,7 @@
+:root {
+  --ui-primary: rgb(139 92 246);
+}
+
+.dark {
+  --ui-primary: rgb(167 139 250);
+}
