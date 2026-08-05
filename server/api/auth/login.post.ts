@@ -96,6 +96,21 @@ export default defineEventHandler(async (event) => {
   const factionName =
     factionData.faction?.name ?? factionData.faction?.faction_name ?? null;
 
+  console.log("========== INQUEST AUTH DEBUG ==========");
+
+  console.log("Runtime Config:");
+  console.log({
+    tornFactionId: config.tornFactionId,
+    requiredFactionId: Number(config.tornFactionId),
+  });
+
+  console.log("Torn Response:");
+  console.log({
+    factionId,
+    factionName,
+  });
+
+  console.log("========================================");
   // 2. Pull basic profile info (best-effort, used only for display/audit).
   let tornUserId: number | undefined;
   let tornName: string | undefined;
@@ -111,6 +126,15 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     console.error("Torn basic endpoint failed:", err);
   }
+
+  console.log("Comparison:");
+  console.log({
+    factionId,
+    requiredFactionId,
+    equal: factionId === requiredFactionId,
+    factionType: typeof factionId,
+    requiredType: typeof requiredFactionId,
+  });
 
   // 3. Enforce the faction gate.
   if (!factionId || factionId !== requiredFactionId) {
