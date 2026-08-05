@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         p_reason: opts.reason ?? null,
       });
     } catch (err) {
-      console.error("Torn basic endpoint failed:", err);
+      console.error("Supabase record_torn_login failed:", err);
     }
   };
 
@@ -74,7 +74,19 @@ export default defineEventHandler(async (event) => {
         query: { key: apiKey },
       },
     );
-  } catch {
+  } catch (err: any) {
+    const tornErr = err?.data?.error || err?.response?._data?.error;
+    if (tornErr) {
+      await logAttempt({
+        success: false,
+        reason: `torn_api_error_${tornErr.code}`,
+      });
+      throw createError({
+        statusCode: 401,
+        statusMessage: tornErr.error || "Torn rejected this API key.",
+      });
+    }
+
     throw createError({
       statusCode: 502,
       statusMessage: "Could not reach the Torn API. Please try again.",
@@ -96,21 +108,6 @@ export default defineEventHandler(async (event) => {
   const factionName =
     factionData.faction?.name ?? factionData.faction?.faction_name ?? null;
 
-  console.log("========== INQUEST AUTH DEBUG ==========");
-
-  console.log("Runtime Config:");
-  console.log({
-    tornFactionId: config.tornFactionId,
-    requiredFactionId: Number(config.tornFactionId),
-  });
-
-  console.log("Torn Response:");
-  console.log({
-    factionId,
-    factionName,
-  });
-
-  console.log("========================================");
   // 2. Pull basic profile info (best-effort, used only for display/audit).
   let tornUserId: number | undefined;
   let tornName: string | undefined;
@@ -127,17 +124,10 @@ export default defineEventHandler(async (event) => {
     console.error("Torn basic endpoint failed:", err);
   }
 
-  console.log("Comparison:");
-  console.log({
-    factionId,
-    requiredFactionId,
-    equal: factionId === requiredFactionId,
-    factionType: typeof factionId,
-    requiredType: typeof requiredFactionId,
-  });
+  const numericFactionId = factionId ? Number(factionId) : NaN;
 
   // 3. Enforce the faction gate.
-  if (!factionId || factionId !== requiredFactionId) {
+  if (!factionId || numericFactionId !== requiredFactionId) {
     await logAttempt({
       tornUserId,
       tornName,

@@ -17,6 +17,8 @@ const { subNavigationMode } = useSubNavigation()
     </template>
 
     <template #right>
+      <AppReactionButton />
+
       <AppHeaderCTA />
 
       <AssistantChat v-if="isAssistantEnabled" />

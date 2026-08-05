@@ -55,7 +55,7 @@ Everything you need in one place
   :::u-page-feature
   ---
   icon: i-lucide-scale
-  to: /rules
+  to: /lobby/rules
   ---
   #title
   Rules & Expectations
@@ -67,7 +67,7 @@ Everything you need in one place
   :::u-page-feature
   ---
   icon: i-lucide-users
-  to: /organized-crimes
+  to: /lobby/oc
   ---
   #title
   Organized Crimes
@@ -79,7 +79,7 @@ Everything you need in one place
   :::u-page-feature
   ---
   icon: i-lucide-swords
-  to: /war
+  to: /warhq/warstarter
   ---
   #title
   Warfare
@@ -91,7 +91,7 @@ Everything you need in one place
   :::u-page-feature
   ---
   icon: i-lucide-calendar-days
-  to: /events
+  to: /lobby/calender
   ---
   #title
   Events
@@ -164,7 +164,7 @@ Whether you're a new recruit or a veteran member, the documentation is designed 
   ---
   color: primary
   size: xl
-  to: /getting-started/introduction
+  to: /announcement/readme-first
   trailing-icon: i-lucide-arrow-right
   ---
   Explore Documentation

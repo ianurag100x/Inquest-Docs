@@ -24,13 +24,17 @@ async function handleSubmit() {
 
   try {
     await $fetch("/api/auth/login", {
-      method: "POST",
-      body: { apiKey: apiKey.value.trim() },
-    });
+  method: "POST",
+  body: {
+    apiKey: apiKey.value.trim(),
+  },
+});
 
-    const redirect =
-      typeof route.query.redirect === "string" ? route.query.redirect : "/";
-    await navigateTo(redirect);
+// Give the browser time to persist the Set-Cookie header.
+await new Promise(resolve => setTimeout(resolve, 100));
+
+window.location.replace("/");
+
   } catch (err: any) {
     errorMessage.value =
       err?.data?.statusMessage ||
