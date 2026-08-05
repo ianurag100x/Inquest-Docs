@@ -3,7 +3,6 @@ import { getSupabaseClient } from "../utils/supabase";
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
     name?: string;
-    emoji?: string;
   }>(event);
 
   const name = body.name?.trim();
@@ -17,17 +16,42 @@ export default defineEventHandler(async (event) => {
 
   const supabase = getSupabaseClient(event);
 
+  // Check if the user has already reacted
+  const { data: existing, error: existingError } = await supabase
+    .from("reactions")
+    .select("id")
+    .eq("name", name)
+    .maybeSingle();
+
+  if (existingError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: existingError.message,
+    });
+  }
+
+  if (existing) {
+    const { count } = await supabase
+      .from("reactions")
+      .select("*", {
+        head: true,
+        count: "exact",
+      });
+
+    return {
+      success: false,
+      alreadyReacted: true,
+      message: "You've already reacted. Thank you for your support! 💜",
+      count: count ?? 0,
+    };
+  }
+
+  // Insert new reaction
   const { error } = await supabase
-  .from("reactions")
-  .upsert(
-    {
+    .from("reactions")
+    .insert({
       name,
-      emoji: body.emoji ?? "❤️",
-    },
-    {
-      onConflict: "name",
-    }
-  );
+    });
 
   if (error) {
     throw createError({
@@ -45,6 +69,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
+    alreadyReacted: false,
+    message: "Thank you for reacting! 💜",
     count: count ?? 0,
   };
-})
+});

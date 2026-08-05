@@ -50,7 +50,7 @@ defineOgImage('Docs', {
 })
 
 function handleContactAlert() {
-  alert("Contact XYZ in Torn or discord to update.")
+  alert("You don't have to complain. Git Gud")
 }
 
 // Add the page path to the prerender list

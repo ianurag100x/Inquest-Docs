@@ -37,6 +37,7 @@ function toggleExpand() {
 
 async function submitReaction() {
   const trimmed = nameInput.value.trim();
+
   if (!trimmed) {
     errorMessage.value = "Name required";
     return;
@@ -46,24 +47,41 @@ async function submitReaction() {
   errorMessage.value = "";
 
   try {
-    const res = await $fetch<{ success: boolean; count: number }>("/api/reactions", {
-      method: "POST",
-      body: {
-        name: trimmed,
-        emoji: "💜",
-      },
-    });
+    const res = await $fetch<{
+  success: boolean;
+  alreadyReacted?: boolean;
+  message?: string;
+  count: number;
+}>("/api/reactions", {
+  method: "POST",
+  body: {
+    name: trimmed,
+  },
+});
 
-    if (res?.success) {
+    if (res.alreadyReacted) {
+      errorMessage.value = res.message || "You've already reacted. 💜";
+
+      setTimeout(() => {
+        errorMessage.value = "";
+        isExpanded.value = false;
+      }, 2000);
+
+      return;
+    }
+
+    if (res.success) {
       await refreshReactions();
       submitted.value = true;
+
       setTimeout(() => {
         isExpanded.value = false;
         submitted.value = false;
       }, 1500);
     }
   } catch (err: any) {
-    errorMessage.value = err?.data?.statusMessage || "Error saving reaction";
+    errorMessage.value =
+      err?.data?.statusMessage || "Error saving reaction";
   } finally {
     loading.value = false;
   }
