@@ -44,6 +44,10 @@ export default defineEventHandler((event) => {
     return;
   }
 
+  // Prevent browser/Vercel CDN 304 caching of authenticated HTML pages and redirects
+  setHeader(event, "Cache-Control", "no-store, no-cache, must-revalidate, private");
+  setHeader(event, "Pragma", "no-cache");
+
   /**
    * Not authenticated
    */
