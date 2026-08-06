@@ -24,16 +24,23 @@ function isPublicPath(path: string) {
 export default defineEventHandler((event) => {
   const path = getRequestURL(event).pathname;
 
+  /**
+   * 1. Static assets & auth APIs (return early without no-cache headers)
+   */
+  if (isPublicPath(path)) {
+    return;
+  }
+
   const config = useRuntimeConfig(event);
   const token = getCookie(event, "faction_session");
   const session = verifySession(token, config.authSecret as string);
 
-  // Prevent browser/Vercel CDN 304 caching of authenticated HTML pages and redirects
+  // 2. Prevent browser/Vercel CDN 304 caching of authenticated HTML pages and redirects
   setHeader(event, "Cache-Control", "no-store, no-cache, must-revalidate, private");
   setHeader(event, "Pragma", "no-cache");
 
   /**
-   * Login page
+   * 3. Login page
    */
   if (path === "/login" || path === "/login/") {
     if (session) {
@@ -44,18 +51,7 @@ export default defineEventHandler((event) => {
   }
 
   /**
-   * Static assets & auth APIs
-   */
-  if (isPublicPath(path)) {
-    return;
-  }
-
-  // Prevent browser/Vercel CDN 304 caching of authenticated HTML pages and redirects
-  setHeader(event, "Cache-Control", "no-store, no-cache, must-revalidate, private");
-  setHeader(event, "Pragma", "no-cache");
-
-  /**
-   * Not authenticated
+   * 4. Not authenticated
    */
   if (!session) {
     if (path.startsWith("/api/") || event.method !== "GET") {
@@ -73,7 +69,7 @@ export default defineEventHandler((event) => {
   }
 
   /**
-   * Authenticated
+   * 5. Authenticated
    */
   return;
 });
