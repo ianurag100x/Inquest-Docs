@@ -1,70 +1,51 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getSupabaseClient } from "../utils/supabase";
+import { verifySession } from "../utils/session";
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{ name?: string }>(event);
-  const name = body?.name?.trim();
+  setHeader(event, "Cache-Control", "no-store, no-cache, must-revalidate, private");
+  setHeader(event, "Pragma", "no-cache");
 
-  if (!name) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Please enter your name to add a reaction.",
-    });
-  }
+  const config = useRuntimeConfig(event);
+  const token = getCookie(event, "faction_session");
+  const session = verifySession(token, config.authSecret as string);
+
+  const currentUserName = session?.n?.trim() || "";
 
   let count = 0;
-  let supabaseSuccess = false;
+  let hasReacted = false;
 
-  // 1. Check & insert in Supabase
+  // 1. Try Supabase first
   try {
     const supabase = getSupabaseClient(event);
-
-    // Check if name already reacted
-    const { data: existing } = await supabase
+    
+    // Fetch total reaction count
+    const { count: totalCount, error } = await supabase
       .from("reactions")
-      .select("id")
-      .ilike("name", name)
-      .limit(1);
+      .select("*", { count: "exact", head: true });
 
-    if (existing && existing.length > 0) {
-      // User has already reacted! Get current total count and return
-      const { count: currentCount } = await supabase
-        .from("reactions")
-        .select("*", { count: "exact", head: true });
-
-      return {
-        success: true,
-        count: currentCount ?? 1,
-        alreadyReacted: true,
-        hasReacted: true,
-        message: "You have already reacted!",
-      };
+    if (!error && typeof totalCount === "number") {
+      count = totalCount;
     }
 
-    // Insert new reaction (storing name)
-    const { error: insertErr } = await supabase
-      .from("reactions")
-      .insert([{ name }]);
-
-    if (!insertErr) {
-      supabaseSuccess = true;
-      const { count: updatedCount } = await supabase
+    // Check if the current logged-in user has already reacted
+    if (currentUserName) {
+      const { data: userReaction } = await supabase
         .from("reactions")
-        .select("*", { count: "exact", head: true });
+        .select("id")
+        .eq("name", currentUserName)
+        .limit(1);
 
-      if (typeof updatedCount === "number") {
-        count = updatedCount;
+      if (userReaction && userReaction.length > 0) {
+        hasReacted = true;
       }
     }
+
+    return { count, hasReacted };
   } catch (err) {
-    console.error("Supabase reaction process failed:", err);
+    console.error("Supabase get reactions failed, using CSV fallback:", err);
   }
 
-
-  return {
-    success: true,
-    count: count || 1,
-    hasReacted: true,
-  };
+  return { count, hasReacted };
 });

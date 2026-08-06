@@ -26,10 +26,14 @@ export default defineEventHandler((event) => {
   const token = getCookie(event, "faction_session");
   const session = verifySession(token, config.authSecret as string);
 
+  // Prevent browser/Vercel CDN 304 caching of authenticated HTML pages and redirects
+  setHeader(event, "Cache-Control", "no-store, no-cache, must-revalidate, private");
+  setHeader(event, "Pragma", "no-cache");
+
   /**
    * Login page
    */
-  if (path === "/login") {
+  if (path === "/login" || path === "/login/") {
     if (session) {
       return sendRedirect(event, "/", 302);
     }
