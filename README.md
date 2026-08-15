@@ -5,13 +5,13 @@ A modern, full-stack documentation web application built with **Nuxt**, **Docus*
 The platform is designed to provide a fast, structured, and maintainable documentation experience with a clean UI, dynamic content, and a serverless backend for interactive features.
 
 ## API only access
-[Snapshot](public/images/capture1.PNG)
+![Snapshot](public/images/capture1.PNG)
 
 ## Nuxt Documentation
-[Snapshot](public/images/capture2.PNG)
+![Snapshot](public/images/capture2.PNG)
 
 ## Custom Vue Components
-[Snapshot](public/images/capture3.PNG)
+![Snapshot](public/images/capture3.PNG)
 
 ## ✨ Features
 
